@@ -1,0 +1,39 @@
+#include <LiquidCrystal.h>
+char ch;
+int Contrast=15;
+int32_t Htime;
+int32_t Ltime;
+float Ttime,frequency,capacitance;
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() 
+{
+  Serial.begin(9600);
+  pinMode(8,INPUT);
+  Serial.println("LCD test with PWM contrast adjustment");
+  pinMode(13,OUTPUT);
+  analogWrite(6,Contrast);
+  // set up the LCD's number of columns and rows: 
+  lcd.begin(16, 2);
+ lcd.setCursor(0,0);
+  lcd.print("cap =");
+}
+
+void loop() 
+{
+   for (int i=0;i<5;i++)        //measure time duration five times
+    {
+        Ltime=(pulseIn(8,HIGH)+Ltime)/2;        //get average for each cycle
+        Htime=(pulseIn(8,LOW)+Htime)/2;
+    }
+    Ttime = Htime+Ltime;
+    frequency=1000000/Ttime;
+    
+    capacitance = (1.44*1000000)/(5500*frequency);   //calculating the Capacitance in nF
+    lcd.setCursor(0,1);
+    lcd.print(capacitance);
+    Serial.println(capacitance);
+    lcd.print(" UF   ");
+    delay(500);
+}
